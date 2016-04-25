@@ -189,18 +189,18 @@ class AAATree
     SplayNode* my_access(SplayNode *x) {
     	splay(x);
 	    if(x -> child[0] != nullptr) {
-	        push_down(x); 
+	        push_down(x);
 	        x -> child[0] -> parent = x;
-	        remove(x -> root, x -> child[0] -> num);
-			x -> child[0] = NULL;s
-	       	SplayUp(x);
+	        x -> child[0] = NULL;
+	        x -> child[0] -> isroot = true;
+	       	AAA_insert(x, x -> root, x -> child[0], x -> child[0] -> num);
 	    }
 	    SplayNode *y = x;
 	    if(x -> parent != nullptr) {
 	        y = access(x -> parent);
 	        x -> parent -> child[0] = x;
-	    	SplayUp(x -> parent);
-	    	//insert
+	        x -> root -> isroot = false;
+	    	AAA_remove(x -> parent, x -> parent -> root, x -> num);
 		}
 	    splay(x);
 	    return y;
@@ -208,13 +208,13 @@ class AAATree
     SplayNode* get_true_father(SplayNode *x) {
     	splay(x);
 		pushdown(x);
-    	if(x -> child[0] == nullptr) {
+    	if(x -> child[1] == nullptr) {
     		return x -> parent;
     	} else {
-    		x = x -> child[0];
+    		x = x -> child[1];
 			pushdown(x);
-			while(x -> child[1] == nullptr) {
-    			x = x -> child[1];
+			while(x -> child[0] == nullptr) {
+    			x = x -> child[0];
     			pushdown(x);
 			}
     		return x;
@@ -237,9 +237,8 @@ public:
 		access(y);
 		for(int i = 0; i <= 1; i++) {
 			if(y -> child[i] != nullptr && y -> child[i] == x) {
-				x -> parent = nullptr;
-				y -> child[i] = nullptr;
-				remove(y -> root, x -> num); 
+				y -> child[i] -> parent = nullptr;
+				AAA_remove(y, y -> root, x -> num); 
 				//?\ 
 			}
 		}
@@ -267,10 +266,8 @@ public:
 		}
 		x -> reverse ^= 1;
 	    access(y);
-	    y - >child[0] = x;
 	    x -> parent = y;
-	    y -> splayUp();
-	    insert(y -> root, x -> num);
+	    AAA_insert(y, y -> root, x, x -> num);
 		return ;
     }
     //return the sum of the subtree whose root is x
